@@ -170,6 +170,10 @@ int sdio_set_block_size(struct sdio_func *func, unsigned blksz)
 		blksz = min(blksz, 512u);
 	}
 
+	pr_debug("%s: blksz=%u, max_blksize=%u, max_blk_size=%u\n",
+        mmc_hostname(func->card->host),
+        blksz, func->max_blksize, func->card->host->max_blk_size);
+
 	ret = mmc_io_rw_direct(func->card, 1, 0,
 		SDIO_FBR_BASE(func->num) + SDIO_FBR_BLKSIZE,
 		blksz & 0xff, NULL);

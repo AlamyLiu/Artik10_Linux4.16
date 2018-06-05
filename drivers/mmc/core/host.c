@@ -404,6 +404,9 @@ struct mmc_host *mmc_alloc_host(int extra, struct device *dev)
 
 	host->fixed_drv_type = -EINVAL;
 
+	pr_debug("%s: max_blk_size = %u\n", mmc_hostname(host),
+        host->max_blk_size);
+
 	return host;
 }
 
