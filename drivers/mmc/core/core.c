@@ -314,6 +314,9 @@ static int mmc_mrq_prep(struct mmc_host *host, struct mmc_request *mrq)
 		mrq->sbc->error = 0;
 		mrq->sbc->mrq = mrq;
 	}
+	pr_debug("%s: max_blk_size = %u\n", mmc_hostname(host),
+         host->max_blk_size);
+
 	if (mrq->data) {
 		if (mrq->data->blksz > host->max_blk_size ||
 		    mrq->data->blocks > host->max_blk_count ||
