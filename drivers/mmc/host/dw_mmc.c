@@ -42,6 +42,8 @@
 
 #include "dw_mmc.h"
 
+struct mmc_host *param_mmc; /* Alamy */
+
 /* Common flag combinations */
 #define DW_MCI_DATA_ERROR_FLAGS	(SDMMC_INT_DRTO | SDMMC_INT_DCRC | \
 				 SDMMC_INT_HTO | SDMMC_INT_SBE  | \
@@ -2903,6 +2905,13 @@ static int dw_mci_init_slot(struct dw_mci *host)
 		mmc->max_seg_size = mmc->max_req_size;
 	}
 
+	pr_debug("%s: max_segs=%u, max_seg_size=%u\n", mmc_hostname(mmc),
+         mmc->max_segs, mmc->max_seg_size);
+	pr_debug("%s: max_blk_size=%u, max_blk_count=%u\n", mmc_hostname(mmc),
+         mmc->max_blk_size, mmc->max_blk_count);
+	pr_debug("%s: max_req_size=%u\n", mmc_hostname(mmc),
+         mmc->max_req_size);
+
 	dw_mci_get_cd(mmc);
 
 	ret = mmc_add_host(mmc);
@@ -2912,6 +2921,8 @@ static int dw_mci_init_slot(struct dw_mci *host)
 #if defined(CONFIG_DEBUG_FS)
 	dw_mci_init_debugfs(slot);
 #endif
+
+    param_mmc = mmc;
 
 	return 0;
 
@@ -3546,6 +3557,33 @@ static void __exit dw_mci_exit(void)
 
 module_init(dw_mci_init);
 module_exit(dw_mci_exit);
+
+#if 0
+	pr_debug("%s: max_segs=%u, max_seg_size=%u\n", mmc_hostname(mmc),
+         mmc->max_segs, mmc->max_seg_size);
+	pr_debug("%s: max_blk_size=%u, max_blk_count=%u\n", mmc_hostname(mmc),
+         mmc->max_blk_size, mmc->max_blk_count);
+	pr_debug("%s: max_req_size=%u\n", mmc_hostname(mmc),
+         mmc->max_req_size);
+#endif
+
+static int param_get_max_blk_size(char *buffer, const struct kernel_param *kp)
+{
+    sprintf(buffer, "%s: max_segs=%u, max_seg_size=%u\n"
+        "\tmax_blk_size=%u, max_blk_count=%u\n"
+        "\tmax_req_size=%u\n",
+        mmc_hostname(param_mmc),
+        param_mmc->max_segs, param_mmc->max_seg_size,
+        param_mmc->max_blk_size, param_mmc->max_blk_count,
+        param_mmc->max_req_size);
+
+    return strlen(buffer);
+}
+const struct kernel_param_ops max_blk_size_ops = {
+    .set = NULL,
+    .get = &param_get_max_blk_size,
+};
+module_param_cb(max_blk_size, &max_blk_size_ops, NULL, S_IRUGO);
 
 MODULE_DESCRIPTION("DW Multimedia Card Interface driver");
 MODULE_AUTHOR("NXP Semiconductor VietNam");
