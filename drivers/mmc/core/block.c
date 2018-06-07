@@ -2776,6 +2776,7 @@ DEFINE_SIMPLE_ATTRIBUTE(mmc_dbg_card_status_fops, mmc_dbg_card_status_get,
 
 /* That is two digits * 512 + 1 for newline */
 #define EXT_CSD_STR_LEN 1025
+#define EXT_CSD_BUF_SIZE 1536
 
 static int mmc_ext_csd_open(struct inode *inode, struct file *filp)
 {
@@ -2788,7 +2789,8 @@ static int mmc_ext_csd_open(struct inode *inode, struct file *filp)
 	u8 *ext_csd;
 	int err, i;
 
-	buf = kmalloc(EXT_CSD_STR_LEN + 1, GFP_KERNEL);
+//	buf = kmalloc(EXT_CSD_STR_LEN + 1, GFP_KERNEL);
+	buf = kmalloc(EXT_CSD_BUF_SIZE, GFP_KERNEL);
 	if (!buf)
 		return -ENOMEM;
 
@@ -2808,6 +2810,40 @@ static int mmc_ext_csd_open(struct inode *inode, struct file *filp)
 		goto out_free;
 	}
 
+    /* 4 bytes a group, 16 bytes per line
+        "00112233 44556677 8899AABB CCDDEEFF<NULL>" : 36 bytes (including null)
+
+        Input: 512 bytes
+
+        Output: 1 byte per group, 16 bytes per line
+        "00 11 22 33 44 55 66 77 88 99 AA BB CC DD EE FF<NULL>" : 48 bytes
+
+        Output buffer
+            512 bytes / 16 = 32 lines
+            48 bytes * 32 lines = 1536 bytes
+     */
+    for (i = 0; i < 32; i++) {
+        n += hex_dump_to_buffer(
+            ext_csd + (16 * i)  /* data to dump (16*32=512) */,
+            16                  /* data size (per line) */,
+            16                  /* Output: bytes per line */,
+            1                   /* Output: group size */,
+            buf + n             /* Output: buffer */,
+            EXT_CSD_BUF_SIZE-n  /* Output: buffer size */,
+            false               /* Output ASCII ? */
+        );
+        n += sprintf(buf+n, "\n");
+    }
+
+	pr_info("%s: size = %u (EXT_CSD_BUF_SIZE=%u)\n", __func__,
+        n, EXT_CSD_BUF_SIZE);
+
+    if (n != EXT_CSD_BUF_SIZE) {
+        err = -EINVAL;
+        kfree(ext_csd);
+        goto out_free;
+    }
+#if 0
 	for (i = 0; i < 512; i++)
 		n += sprintf(buf + n, "%02x", ext_csd[i]);
 	n += sprintf(buf + n, "\n");
@@ -2817,6 +2853,7 @@ static int mmc_ext_csd_open(struct inode *inode, struct file *filp)
 		kfree(ext_csd);
 		goto out_free;
 	}
+#endif
 
 	filp->private_data = buf;
 	kfree(ext_csd);
@@ -3095,4 +3132,3 @@ module_exit(mmc_blk_exit);
 
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("Multimedia Card (MMC) block device driver");
-
