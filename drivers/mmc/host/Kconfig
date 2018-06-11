@@ -90,6 +90,15 @@ config MMC_SDHCI_PCI
 
 	  If unsure, say N.
 
+config MMC_SDHCI_PCI_HAPS_DX
+	bool "Synopsys HAPS-DX SDHCI Controller through PCIe interface"
+	depends on MMC_SDHCI_PCI
+	default n
+	help
+	  Synopsys HAPS-DX DWC_MSHC verfication platform.
+
+	  If unsure, say N.
+
 config MMC_RICOH_MMC
 	bool "Ricoh MMC Controller Disabler"
 	depends on MMC_SDHCI_PCI
