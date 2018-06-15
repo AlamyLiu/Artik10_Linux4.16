@@ -148,6 +148,8 @@ int driver_register(struct device_driver *drv)
 	int ret;
 	struct device_driver *other;
 
+	pr_info("<<< %s: %s\n", __func__, drv->name);
+
 	BUG_ON(!drv->bus->p);
 
 	if ((drv->bus->probe && drv->probe) ||

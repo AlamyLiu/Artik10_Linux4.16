@@ -3084,6 +3084,8 @@ static int __init mmc_blk_init(void)
 {
 	int res;
 
+	pr_info("<<< %s\n", __func__);
+
 	res  = bus_register(&mmc_rpmb_bus_type);
 	if (res < 0) {
 		pr_err("mmcblk: could not register RPMB bus type\n");

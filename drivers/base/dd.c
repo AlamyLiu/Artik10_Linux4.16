@@ -71,14 +71,14 @@ static void deferred_probe_debug(struct device *dev)
 	ktime_t calltime, delta, rettime;
 	unsigned long long duration;
 
-	printk(KERN_DEBUG "deferred probe %s @ %i\n", dev_name(dev),
+	pr_info("deferred probe %s @ %i\n", dev_name(dev),
 	       task_pid_nr(current));
 	calltime = ktime_get();
 	bus_probe_device(dev);
 	rettime = ktime_get();
 	delta = ktime_sub(rettime, calltime);
 	duration = (unsigned long long) ktime_to_ns(delta) >> 10;
-	printk(KERN_DEBUG "deferred probe %s returned after %lld usecs\n",
+	pr_info("deferred probe %s returned after %lld usecs\n",
 	       dev_name(dev), duration);
 }
 
@@ -409,7 +409,7 @@ static int really_probe(struct device *dev, struct device_driver *drv)
 		return ret;
 
 	atomic_inc(&probe_count);
-	pr_debug("bus: '%s': %s: probing driver %s with device %s\n",
+	pr_info("bus: '%s': %s: probing driver %s with device %s\n",
 		 drv->bus->name, __func__, drv->name, dev_name(dev));
 	WARN_ON(!list_empty(&dev->devres_head));
 
@@ -446,10 +446,14 @@ re_probe:
 	devices_kset_move_last(dev);
 
 	if (dev->bus->probe) {
+	    pr_info("bus probe = %pf: %s(%s)\n", dev->bus->probe,
+            dev->bus->name, dev_name(dev));
 		ret = dev->bus->probe(dev);
 		if (ret)
 			goto probe_failed;
 	} else if (drv->probe) {
+	    pr_info("drv probe = %pf: %s(%s)\n", drv->probe,
+            drv->name, dev_name(dev));
 		ret = drv->probe(dev);
 		if (ret)
 			goto probe_failed;
@@ -481,7 +485,7 @@ re_probe:
 
 	driver_bound(dev);
 	ret = 1;
-	pr_debug("bus: '%s': %s: bound device %s to driver %s\n",
+	pr_info("bus: '%s': %s: bound device %s to driver %s\n",
 		 drv->bus->name, __func__, dev_name(dev), drv->name);
 	goto done;
 
@@ -580,7 +584,7 @@ int driver_probe_device(struct device_driver *drv, struct device *dev)
 	if (!device_is_registered(dev))
 		return -ENODEV;
 
-	pr_debug("bus: '%s': %s: matched device %s with driver %s\n",
+	pr_info("bus: '%s': %s: matched device %s with driver %s\n",
 		 drv->bus->name, __func__, dev_name(dev), drv->name);
 
 	pm_runtime_get_suppliers(dev);
@@ -782,12 +786,16 @@ out_unlock:
  */
 int device_attach(struct device *dev)
 {
+	pr_info("%s: %s\n", __func__, dev_name(dev));
+
 	return __device_attach(dev, false);
 }
 EXPORT_SYMBOL_GPL(device_attach);
 
 void device_initial_probe(struct device *dev)
 {
+	pr_info("%s: %s\n", __func__, dev_name(dev));
+
 	__device_attach(dev, true);
 }
 
@@ -811,7 +819,9 @@ static int __driver_attach(struct device *dev, void *data)
 		/* no match */
 		return 0;
 	} else if (ret == -EPROBE_DEFER) {
-		dev_dbg(dev, "Device match requests probe deferral\n");
+		dev_info(dev, "Device match requests probe deferral: drv=%s, bus=%s\n",
+            drv->name, dev->bus->name
+        );
 		driver_deferred_probe_add(dev);
 	} else if (ret < 0) {
 		dev_dbg(dev, "Bus failed to match device: %d", ret);
