@@ -327,6 +327,8 @@ int register_blkdev(unsigned int major, const char *name)
 	struct blk_major_name **n, *p;
 	int index, ret = 0;
 
+	pr_info("<<< %s: %s\n", __func__, name);
+
 	mutex_lock(&block_class_lock);
 
 	/* temporary */

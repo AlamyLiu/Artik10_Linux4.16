@@ -623,7 +623,7 @@ static void driver_attach_async(void *_drv, async_cookie_t cookie)
 
 	ret = driver_attach(drv);
 
-	pr_debug("bus: '%s': driver %s async attach completed: %d\n",
+	pr_info("bus: '%s': driver %s async attach completed: %d\n",
 		 drv->bus->name, drv->name, ret);
 }
 
@@ -641,7 +641,7 @@ int bus_add_driver(struct device_driver *drv)
 	if (!bus)
 		return -EINVAL;
 
-	pr_debug("bus: '%s': add driver %s\n", bus->name, drv->name);
+	pr_info("bus: '%s': add driver %s\n", bus->name, drv->name);
 
 	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
 	if (!priv) {
@@ -899,7 +899,7 @@ int bus_register(struct bus_type *bus)
 	if (retval)
 		goto bus_groups_fail;
 
-	pr_debug("bus: '%s': registered\n", bus->name);
+	pr_info("bus: '%s': registered\n", bus->name);
 	return 0;
 
 bus_groups_fail:
