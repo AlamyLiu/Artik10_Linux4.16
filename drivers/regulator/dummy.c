@@ -46,6 +46,8 @@ static int dummy_regulator_probe(struct platform_device *pdev)
 	struct regulator_config config = { };
 	int ret;
 
+	pr_info("%s\n", __func__);
+
 	config.dev = &pdev->dev;
 	config.init_data = &dummy_initdata;
 

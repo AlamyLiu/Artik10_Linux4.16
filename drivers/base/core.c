@@ -1778,6 +1778,10 @@ int device_add(struct device *dev)
 	if (kobj)
 		dev->kobj.parent = kobj;
 
+    if (strcmp("reg-dummy", dev_name(dev)) == 0) {
+        pr_info("device: '%s'/'%s': %s\n", dev_name(dev), dev_name(parent), __func__);
+    }
+
 	/* use parent numa_node */
 	if (parent && (dev_to_node(dev) == NUMA_NO_NODE))
 		set_dev_node(dev, dev_to_node(parent));
@@ -1793,6 +1797,11 @@ int device_add(struct device *dev)
 	/* notify platform of device entry */
 	if (platform_notify)
 		platform_notify(dev);
+    else {
+        if (strcmp("reg-dummy", dev_name(dev)) == 0) {
+            pr_info("platform_notify == NULL\n");
+        }
+    }
 
 	error = device_create_file(dev, &dev_attr_uevent);
 	if (error)

@@ -986,6 +986,12 @@ struct kernfs_node *__kernfs_create_file(struct kernfs_node *parent,
 
 	flags = KERNFS_FILE;
 
+#if 1
+	if (strcmp("reg-dummy", name) == 0) {
+		pr_info("%s: %s/%s\n", __func__, name, parent->name);
+		dump_stack();
+	}
+#endif
 	kn = kernfs_new_node(parent, name, (mode & S_IALLUGO) | S_IFREG, flags);
 	if (!kn)
 		return ERR_PTR(-ENOMEM);

@@ -368,6 +368,8 @@ int platform_device_add(struct platform_device *pdev)
 
 	pdev->dev.bus = &platform_bus_type;
 
+    if (strcmp("reg-dummy", pdev->name) == 0)
+	   dev_info(&pdev->dev, "dev_set_name(%s, %d)\n", pdev->name, pdev->id);
 	switch (pdev->id) {
 	default:
 		dev_set_name(&pdev->dev, "%s.%d", pdev->name,  pdev->id);
@@ -411,7 +413,8 @@ int platform_device_add(struct platform_device *pdev)
 		}
 	}
 
-	pr_debug("Registering platform device '%s'. Parent at %s\n",
+    if (strcmp("reg-dummy", pdev->name) == 0)
+	   pr_info("Registering platform device '%s'. Parent at %s\n",
 		 dev_name(&pdev->dev), dev_name(pdev->dev.parent));
 
 	ret = device_add(&pdev->dev);
