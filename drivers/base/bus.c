@@ -478,7 +478,9 @@ int bus_add_device(struct device *dev)
 	int error = 0;
 
 	if (bus) {
-		pr_debug("bus: '%s': add device %s\n", bus->name, dev_name(dev));
+		if (strstr(dev_name(dev), "mmc") != 0) {
+		    pr_info("bus: '%s': add device %s\n", bus->name, dev_name(dev));
+		}
 		error = device_add_groups(dev, bus->dev_groups);
 		if (error)
 			goto out_put;

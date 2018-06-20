@@ -669,6 +669,13 @@ static int __device_attach_driver(struct device_driver *drv, void *_data)
 		return -EBUSY;
 
 	ret = driver_match_device(drv, dev);
+
+	if (strstr(dev_name(dev), "mmc") != 0) {
+		pr_info("%s: dev=%s, drv=%s: match ret = %d\n", __func__,
+			dev_name(dev), drv->name,
+			ret);
+	}
+
 	if (ret == 0) {
 		/* no match */
 		return 0;
@@ -721,6 +728,11 @@ static void __device_attach_async_helper(void *_dev, async_cookie_t cookie)
 static int __device_attach(struct device *dev, bool allow_async)
 {
 	int ret = 0;
+
+	if (strstr(dev_name(dev), "mmc") != 0) {
+		dump_stack();
+		pr_info("%s: dev->driver=%pf\n", dev_name(dev), dev->driver);
+	}
 
 	device_lock(dev);
 	if (dev->driver) {
@@ -794,7 +806,9 @@ EXPORT_SYMBOL_GPL(device_attach);
 
 void device_initial_probe(struct device *dev)
 {
-	pr_info("%s: %s\n", __func__, dev_name(dev));
+	if (strstr(dev_name(dev), "mmc") != 0) {
+		pr_info("%s: %s\n", __func__, dev_name(dev));
+	}
 
 	__device_attach(dev, true);
 }
