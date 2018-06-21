@@ -80,6 +80,8 @@ static int dw_mci_pltfm_probe(struct platform_device *pdev)
 	const struct dw_mci_drv_data *drv_data = NULL;
 	const struct of_device_id *match;
 
+	pr_info("%s\n", __func__);
+
 	if (pdev->dev.of_node) {
 		match = of_match_node(dw_mci_pltfm_match, pdev->dev.of_node);
 		drv_data = match->data;

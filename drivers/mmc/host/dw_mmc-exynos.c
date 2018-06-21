@@ -524,6 +524,8 @@ static int dw_mci_exynos_probe(struct platform_device *pdev)
 	const struct of_device_id *match;
 	int ret;
 
+	pr_info("%s\n", __func__);
+
 	match = of_match_node(dw_mci_exynos_match, pdev->dev.of_node);
 	drv_data = match->data;
 

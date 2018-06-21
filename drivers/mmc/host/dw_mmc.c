@@ -3233,6 +3233,8 @@ int dw_mci_probe(struct dw_mci *host)
 	int width, i, ret = 0;
 	u32 fifo_size;
 
+	pr_info("%s\n", __func__);
+
 	if (!host->pdata) {
 		host->pdata = dw_mci_parse_dt(host);
 		if (PTR_ERR(host->pdata) == -EPROBE_DEFER) {
