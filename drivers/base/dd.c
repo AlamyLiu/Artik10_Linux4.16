@@ -829,6 +829,13 @@ static int __driver_attach(struct device *dev, void *data)
 	 */
 
 	ret = driver_match_device(drv, dev);
+
+	if (strstr(dev_name(dev), "mmc") != 0) {
+		pr_info("%s: dev=%s, drv=%s: match ret = %d\n", __func__,
+			dev_name(dev), drv->name,
+			ret);
+	}
+
 	if (ret == 0) {
 		/* no match */
 		return 0;

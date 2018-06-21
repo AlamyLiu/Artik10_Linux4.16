@@ -661,6 +661,10 @@ int bus_add_driver(struct device_driver *drv)
 
 	klist_add_tail(&priv->knode_bus, &bus->p->klist_drivers);
 	if (drv->bus->p->drivers_autoprobe) {
+		if (strstr(drv->name, "mmc") != 0) {
+			pr_info("bus: '%s': probing driver %s\n",
+				drv->bus->name, drv->name);
+		}
 		if (driver_allows_async_probing(drv)) {
 			pr_debug("bus: '%s': probing driver %s asynchronously\n",
 				drv->bus->name, drv->name);
@@ -669,6 +673,12 @@ int bus_add_driver(struct device_driver *drv)
 			error = driver_attach(drv);
 			if (error)
 				goto out_unregister;
+		}
+	}
+	else {
+		if (strstr(drv->name, "mmc") != 0) {
+			pr_info("bus: '%s': NOT probing driver %s\n",
+				drv->bus->name, drv->name);
 		}
 	}
 	module_add_driver(drv->owner, drv);
